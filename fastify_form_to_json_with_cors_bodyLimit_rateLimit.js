@@ -13,17 +13,18 @@ const fastify = Fastify({
   bodyLimit: 10000
 })
 
-await fastify.register(import('@fastify/rate-limit'), {
-  max: 2,
-  timeWindow: '1 minute'  
-})
-
 fastify.register(import('@fastify/formbody'))
 
 fastify.register(import('@fastify/cors'))
 
 fastify.post('/', (req, reply) => {
   reply.send(req.body)
+})
+
+// Because we are registering the rate-limiter after registering the POST / route above, POSTs at / won't be rate-limited. But GET at / would.
+await fastify.register(import('@fastify/rate-limit'), {
+  max: 2,
+  timeWindow: '1 minute'  
 })
 
 fastify.get('/', get_handler)
