@@ -24,10 +24,11 @@ fastify.post('/', (req, reply) => {
 // Because we are registering the rate-limiter after registering the POST / route above, POSTs at / won't be rate-limited. But GET at / would.
 await fastify.register(import('@fastify/rate-limit'), {
   max: 2,
-  timeWindow: '1 minute'  
+  timeWindow: '1 minute',
+  ban: 4
 })
 
-fastify.get('/', get_handler)
+fastify.get('/:privatePath', get_handler)
 
 fastify.listen({ port: 8000, host: '0.0.0.0' }, (err) => {
   if (err) throw err
@@ -35,5 +36,6 @@ fastify.listen({ port: 8000, host: '0.0.0.0' }, (err) => {
 
 // This function is hoisted
 function get_handler(req, reply){
-    reply.send("hi there")
+    const { privatePath } = req.params;
+    reply.send(`Your private path is ${privatePath}`)
 }
