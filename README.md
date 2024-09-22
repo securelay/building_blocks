@@ -1,0 +1,5 @@
+- [Install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#git-install)
+- [Install node](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage): `nvm install node` This also installs npm
+- `git clone` this repo and `cd` into it.
+- Install packages with `npm i` or `npm install`
+- Run your .js (module type js) or .cjs (CommonJS): `node <filepath>`
