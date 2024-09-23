@@ -44,5 +44,6 @@ fastify.listen({ port: env.port, host: '0.0.0.0' }, (err) => {
 function get_handler(req, reply){
     const { privatePath } = req.params;
     reply.code(200); // 200 is default, i.e. sent if code is not set like this
-    reply.send(`Your private path is ${privatePath}`);
+    reply.send(`Your private path is ${privatePath}`); // Instead of this we could also have used return
+    // return `Your private path is ${privatePath}`;
 }
