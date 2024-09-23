@@ -18,6 +18,11 @@ fastify.register(import('@fastify/formbody'))
 
 fastify.register(import('@fastify/cors'))
 
+fastify.addHook('onResponse', (request, reply, done) => {
+    console.log(`I just received ${JSON.stringify(request.body)}`)
+    done();
+})
+
 fastify.post('/', (req, reply) => {
   reply.send(req.body)
 })
