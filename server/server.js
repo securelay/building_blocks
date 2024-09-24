@@ -91,6 +91,29 @@ fastify.get('/public/:publicKey', (request, reply) => {
     }    
 })
 
+fastify.post('/private/:privateKey/:key', (request, reply) => {
+    const { privateKey, key } = request.params;
+    try {
+        if (helper.validate(privateKey) !== 'private') throw "Key provided is not Private";
+        helper.oneToOneProduce(privateKey, key, JSON.stringify(request.body));
+        reply.send({status: "ok"});
+    } catch (err) {
+        reply.code(401);
+        reply.send({status: "err", msg: err});
+    }    
+})
+
+fastify.get('/public/:publicKey/:key', (request, reply) => {
+    const { publicKey, key } = request.params;
+    try {
+        if (helper.validate(publicKey) !== 'public') throw "Key provided is not Public";
+        reply.send(helper.oneToOneConsume(publicKey, key));
+    } catch (err) {
+        reply.code(401);
+        reply.send({status: "err", msg: err});
+    }    
+})
+
 fastify.listen({ port: port, host: '0.0.0.0' }, (err) => {
   if (err) throw err
 })
