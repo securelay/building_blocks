@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
 import { secret, sigLength } from './env.js';
+const dir = {public: "database/publicToPrivate/", private: "database/privateToPublic/", tmp: "database/tmp/"};
 
 function hash(str){
     return Crypto.hash('sha256', str, 'base64url'); // For small size str this is faster than fs.createHash()
@@ -38,3 +39,42 @@ export function genKeyPair(seed){
     const publicKey = genPublicKey(privateKey);
     return {private: privateKey, public: publicKey};
 }
+
+export function setupDB(){
+    fs.mkdirSync(dir.public, {recursive: true});
+    fs.mkdirSync(dir.private);
+    fs.mkdirSync(dir.tmp);    
+}
+
+export function publicProduce(publicKey, data){
+    const destDir = dir.public + publicKey + '/';
+    const uuid = Crypto.randomUUID();
+    const tmpfile = dir.tmp + uuid;
+    fs.writeFileSync(tmpfile, data, {flush: true});
+    try {fs.mkdirSync(destDir)} catch (e) {}; // Dont throw error if directory exists and mkdir fails
+    fs.renameSync(tmpfile, destDir + uuid);
+}
+
+export function privateConsume(privateKey){
+    const publicKey = genPublicKey(privateKey);
+    const srcDir = dir.public + publicKey + '/';
+    let aggregatedDataAsArray = [];
+    for (const file of fs.readdirSync(srcDir)) {
+        const data = fs.readFileSync(srcDir + file, 'utf8'); 
+        aggregatedDataAsArray.push(data);
+        fs.unlinkSync(srcDir + file);
+    }
+    return aggregatedDataAsArray;
+}
+
+export function privateProduce(privateKey, data){
+    const publicKey = genPublicKey(privateKey);
+    const tmpfile = dir.tmp + Crypto.randomUUID();
+    fs.writeFileSync(tmpfile, data, {flush: true});
+    fs.renameSync(tmpfile, dir.private + publicKey);
+}
+
+export function publicConsume(publicKey){
+    return fs.readFileSync(dir.private + publicKey, 'utf8');
+}
+
