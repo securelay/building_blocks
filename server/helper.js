@@ -42,8 +42,7 @@ export function genPublicKey(privateKey){
     return publicKey
 }
 
-export function genKeyPair(seed){
-    if (!seed) seed = Crypto.randomUUID();
+export function genKeyPair(seed = Crypto.randomUUID()){
     const privateHash = hash(seed);
     const privateKey = sign(privateHash + 'private') + privateHash;
     const publicKey = genPublicKey(privateKey);
