@@ -22,3 +22,4 @@ console.log(JSON.stringify(helper.publicConsume(key.public)));
 
 helper.oneToOneProduce(key.private, 'some Key', 'data for one to one at some key');
 console.log(JSON.stringify(helper.oneToOneConsume(key.public, 'some Key')))
+console.log(helper.oneToOneIsConsumed(key.private, 'some Key'))

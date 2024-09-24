@@ -94,3 +94,9 @@ export function oneToOneConsume(publicKey, key){
     fs.unlinkSync(srcFile);
     return data;
 }
+
+export function oneToOneIsConsumed(privateKey, key){
+    const publicKey = genPublicKey(privateKey);
+    const srcFile = dir.oneToOne + publicKey + '/' + hash(key);
+    return !fs.existsSync(srcFile);
+}
