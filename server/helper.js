@@ -3,8 +3,8 @@ import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
 
 const secret = process.env.SECRET;
-const sigLength = process.env.SIG_LENGTH;
-const expiry = process.env.EXPIRY;
+const sigLength = parseInt(process.env.SIG_LENGTH);
+const expiry = parseInt(process.env.EXPIRY);
 const dbRoot = process.env.DBROOT;
 
 const dir = {
