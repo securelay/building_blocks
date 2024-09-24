@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
-import { secret, sigLength } from './env.js';
+import { secret, sigLength, expiry } from './env.js';
 const dir = {public: "database/publicToPrivate/", private: "database/privateToPublic/", oneToOne: "database/oneToOne/", tmp: "database/tmp/"};
 
 function hash(str){
@@ -99,4 +99,9 @@ export function oneToOneIsConsumed(privateKey, key){
     const publicKey = genPublicKey(privateKey);
     const srcFile = dir.oneToOne + publicKey + '/' + hash(key);
     return !fs.existsSync(srcFile);
+}
+
+export function isExpired(path){
+    const age = (new Date().getTime() - fs.statSync(path).mtime) / 1000;
+    return age > expiry;
 }
