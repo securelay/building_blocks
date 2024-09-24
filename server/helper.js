@@ -68,6 +68,7 @@ export function publicProduce(publicKey, data){
 export function privateConsume(privateKey){
     const publicKey = genPublicKey(privateKey);
     const srcDir = dir.manyToOne + publicKey + '/';
+    if (!fs.existsSync(srcDir)) return [];
     let aggregatedDataAsArray = [];
     for (const file of fs.readdirSync(srcDir)) {
         const data = fs.readFileSync(srcDir + file, 'utf8'); 
@@ -85,7 +86,9 @@ export function privateProduce(privateKey, data){
 }
 
 export function publicConsume(publicKey){
-    return fs.readFileSync(dir.oneToMany + publicKey, 'utf8');
+    const srcFile = dir.oneToMany + publicKey;
+    if (!fs.existsSync(srcFile)) return;    
+    return fs.readFileSync(srcFile, 'utf8');
 }
 
 export function oneToOneProduce(privateKey, key, data){
@@ -99,6 +102,7 @@ export function oneToOneProduce(privateKey, key, data){
 
 export function oneToOneConsume(publicKey, key){
     const srcFile = dir.oneToOne + publicKey + '/' + hash(key)
+    if (!fs.existsSync(srcFile)) return;
     const data = fs.readFileSync(srcFile, 'utf8');
     fs.unlinkSync(srcFile);
     return data;
