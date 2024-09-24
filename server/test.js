@@ -3,7 +3,7 @@ Brief: Testing
 Run: node --env-file=.env test.js
 */
 
-import * as helper from './helper.js'
+import * as helper from './helper.js';
 
 
 const key = helper.genKeyPair();
@@ -22,11 +22,13 @@ helper.publicProduce(key.public, 'dataC');
 
 console.log(JSON.stringify(helper.privateConsume(key.private)));
 
-helper.privateProduce(key.private, 'data')
+helper.privateProduce(key.private, 'data');
 console.log(JSON.stringify(helper.publicConsume(key.public)));
 
 helper.oneToOneProduce(key.private, 'some Key', 'data for one to one at some key');
-console.log(JSON.stringify(helper.oneToOneConsume(key.public, 'some Key')))
-console.log(helper.oneToOneIsConsumed(key.private, 'some Key'))
+console.log(JSON.stringify(helper.oneToOneConsume(key.public, 'some Key')));
+console.log(helper.oneToOneIsConsumed(key.private, 'some Key'));
 
-console.log(helper.isExpired(`${process.env.PWD}/`));
+helper.gc();
+
+console.log('End of synchronous execution. Anything logged after this is from async only!')

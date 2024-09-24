@@ -5,12 +5,13 @@ import Crypto from 'node:crypto';
 const secret = process.env.SECRET;
 const sigLength = process.env.SIG_LENGTH;
 const expiry = process.env.EXPIRY;
+const dbRoot = process.env.DBROOT;
 
 const dir = {
-                manyToOne: ".data/manyToOne/", 
-                oneToMany: ".data/oneToMany/", 
-                oneToOne: ".data/oneToOne/", 
-                tmp: ".data/tmp/"
+                manyToOne: dbRoot + "/manyToOne/", 
+                oneToMany: dbRoot + "/oneToMany/", 
+                oneToOne: dbRoot + "/oneToOne/", 
+                tmp: dbRoot + "/tmp/"
             }
 
 function hash(str){
@@ -50,10 +51,9 @@ export function genKeyPair(seed){
 }
 
 export function setupDB(){
-    fs.mkdirSync(dir.manyToOne, {recursive: true});
-    fs.mkdirSync(dir.oneToMany);
-    fs.mkdirSync(dir.oneToOne);
-    fs.mkdirSync(dir.tmp);
+    for (const key in dir) {
+        fs.mkdirSync(dir[key], {recursive: true});
+    }
 }
 
 export function publicProduce(publicKey, data){
@@ -110,7 +110,17 @@ export function oneToOneIsConsumed(privateKey, key){
     return !fs.existsSync(srcFile);
 }
 
-export function isExpired(path){
+function isExpired(path){
     const age = (new Date().getTime() - fs.statSync(path).mtime) / 1000;
     return age > expiry;
+}
+
+function gcIn(dir){
+    rimraf(dir + '/**/*', {glob: true, filter: isExpired}).then((val) => {console.log(`Garbage cleaned in ${dir}`);}, (err) => {console.log(err.data);});
+}
+
+export function gc(){
+    for (const key in dir) {
+        gcIn(dir[key]);
+    }
 }
