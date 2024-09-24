@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
 import { secret, sigLength } from './env.js';
-const dir = {public: "database/publicToPrivate/", private: "database/privateToPublic/", tmp: "database/tmp/"};
+const dir = {public: "database/publicToPrivate/", private: "database/privateToPublic/", oneToOne: "database/oneToOne/", tmp: "database/tmp/"};
 
 function hash(str){
     return Crypto.hash('sha256', str, 'base64url'); // For small size str this is faster than fs.createHash()
@@ -43,7 +43,8 @@ export function genKeyPair(seed){
 export function setupDB(){
     fs.mkdirSync(dir.public, {recursive: true});
     fs.mkdirSync(dir.private);
-    fs.mkdirSync(dir.tmp);    
+    fs.mkdirSync(dir.oneToOne);
+    fs.mkdirSync(dir.tmp);
 }
 
 export function publicProduce(publicKey, data){
@@ -78,3 +79,18 @@ export function publicConsume(publicKey){
     return fs.readFileSync(dir.private + publicKey, 'utf8');
 }
 
+export function oneToOneProduce(privateKey, key, data){
+    const publicKey = genPublicKey(privateKey);
+    const destDir = dir.oneToOne + publicKey + '/';
+    try {fs.mkdirSync(destDir)} catch (e) {}; // Dont throw error if directory exists and mkdir fails
+    const tmpfile = dir.tmp + Crypto.randomUUID();
+    fs.writeFileSync(tmpfile, data, {flush: true});
+    fs.renameSync(tmpfile, destDir + hash(key));    
+}
+
+export function oneToOneConsume(publicKey, key){
+    const srcFile = dir.oneToOne + publicKey + '/' + hash(key)
+    const data = fs.readFileSync(srcFile, 'utf8');
+    fs.unlinkSync(srcFile);
+    return data;
+}

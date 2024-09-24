@@ -19,3 +19,6 @@ console.log(JSON.stringify(helper.privateConsume(key.private)));
 
 helper.privateProduce(key.private, 'data')
 console.log(JSON.stringify(helper.publicConsume(key.public)));
+
+helper.oneToOneProduce(key.private, 'some Key', 'data for one to one at some key');
+console.log(JSON.stringify(helper.oneToOneConsume(key.public, 'some Key')))
