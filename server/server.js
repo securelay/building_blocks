@@ -183,7 +183,7 @@ fastify.get('/private/:privateKey/:key', (request, reply) => {
 
 fastify.get('/gc', (request, reply) => { 
     helper.gc();
-    return 'Garbage collector launched.'
+    return 'Garbage cleaner launched.'
 });
 
 fastify.listen({ port: port, host: '0.0.0.0' }, (err) => {
