@@ -56,6 +56,18 @@ fastify.get('/keys', (request, reply) => {
     reply.send(helper.genKeyPair());
 })
 
+fastify.get('/keys/:key', (request, reply) => {
+    const { key } = request.params;
+    const keyType = helper.validate(key);
+    if (keyType === 'public') {
+        reply.send({type: "public"});
+    } else if (keyType === 'private') {
+        reply.send({type: "private", public: helper.genPublicKey(key)});
+    } else {
+        reply.callNotFound();
+    }
+})
+
 fastify.post('/public/:publicKey', (request, reply) => {
     const { publicKey } = request.params;
     try {
