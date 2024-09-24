@@ -1,8 +1,17 @@
 import fs from 'node:fs';
 import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
-import { secret, sigLength, expiry } from './env.js';
-const dir = {public: "database/publicToPrivate/", private: "database/privateToPublic/", oneToOne: "database/oneToOne/", tmp: "database/tmp/"};
+
+const secret = process.env.SECRET;
+const sigLength = process.env.SIG_LENGTH;
+const expiry = process.env.EXPIRY;
+
+const dir = {
+                manyToOne: ".data/manyToOne/", 
+                oneToMany: ".data/oneToMany/", 
+                oneToOne: ".data/oneToOne/", 
+                tmp: ".data/tmp/"
+            }
 
 function hash(str){
     return Crypto.hash('sha256', str, 'base64url'); // For small size str this is faster than fs.createHash()
@@ -41,14 +50,14 @@ export function genKeyPair(seed){
 }
 
 export function setupDB(){
-    fs.mkdirSync(dir.public, {recursive: true});
-    fs.mkdirSync(dir.private);
+    fs.mkdirSync(dir.manyToOne, {recursive: true});
+    fs.mkdirSync(dir.oneToMany);
     fs.mkdirSync(dir.oneToOne);
     fs.mkdirSync(dir.tmp);
 }
 
 export function publicProduce(publicKey, data){
-    const destDir = dir.public + publicKey + '/';
+    const destDir = dir.manyToOne + publicKey + '/';
     const uuid = Crypto.randomUUID();
     const tmpfile = dir.tmp + uuid;
     fs.writeFileSync(tmpfile, data, {flush: true});
@@ -58,7 +67,7 @@ export function publicProduce(publicKey, data){
 
 export function privateConsume(privateKey){
     const publicKey = genPublicKey(privateKey);
-    const srcDir = dir.public + publicKey + '/';
+    const srcDir = dir.manyToOne + publicKey + '/';
     let aggregatedDataAsArray = [];
     for (const file of fs.readdirSync(srcDir)) {
         const data = fs.readFileSync(srcDir + file, 'utf8'); 
@@ -72,11 +81,11 @@ export function privateProduce(privateKey, data){
     const publicKey = genPublicKey(privateKey);
     const tmpfile = dir.tmp + Crypto.randomUUID();
     fs.writeFileSync(tmpfile, data, {flush: true});
-    fs.renameSync(tmpfile, dir.private + publicKey);
+    fs.renameSync(tmpfile, dir.oneToMany + publicKey);
 }
 
 export function publicConsume(publicKey){
-    return fs.readFileSync(dir.private + publicKey, 'utf8');
+    return fs.readFileSync(dir.oneToMany + publicKey, 'utf8');
 }
 
 export function oneToOneProduce(privateKey, key, data){

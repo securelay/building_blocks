@@ -1,3 +1,8 @@
+/*
+Brief: Testing
+Run: node --env-file=.env test.js
+*/
+
 import * as helper from './helper.js'
 
 
@@ -5,9 +10,9 @@ const key = helper.genKeyPair();
 
 console.log(JSON.stringify(key));
 
-console.log(helper.validate(key.public));
-console.log(helper.validate(key.private));
-console.log(helper.validate('random'));
+console.log('This should show public: ' + helper.validate(key.public));
+console.log('This should show private: ' + helper.validate(key.private));
+console.log('This should show false: ' + helper.validate('random'));
 
 helper.setupDB();
 
@@ -24,4 +29,4 @@ helper.oneToOneProduce(key.private, 'some Key', 'data for one to one at some key
 console.log(JSON.stringify(helper.oneToOneConsume(key.public, 'some Key')))
 console.log(helper.oneToOneIsConsumed(key.private, 'some Key'))
 
-console.log(helper.isExpired('LICENSE'));
+console.log(helper.isExpired(`${process.env.PWD}/`));
