@@ -47,13 +47,26 @@ fastify.get('/keys', (request, reply) => {
 
 fastify.post('/public/:publicKey', (request, reply) => {
     const { publicKey } = request.params;
+    let statusCode = 200;
+    let msg="Done";
+    let errorDesc="Ok";
+    
     try {
-        if (helper.validate(publicKey) !== 'public') throw "Key provided is not Public";
+        if (helper.validate(publicKey) !== 'public') throw 401;
         helper.publicProduce(publicKey, JSON.stringify(request.body));
-        reply.send({status: "ok"});
+        reply.send({message: msg, error: errorDesc, statusCode: statusCode});    
     } catch (err) {
-        reply.code(401);
-        reply.send({status: "err", msg: err});
+        if (err == 401) {
+            statusCode = 401;
+            msg = "Key provided is not Public";
+            errorDesc = "Unauthorized";
+        } else {
+            statusCode = 500;
+            msg = err;
+            errorDesc = "Internal Server Error";
+        }
+        reply.code(statusCode);
+        reply.send({message: msg, error: errorDesc, statusCode: statusCode});    
     }    
 })
 

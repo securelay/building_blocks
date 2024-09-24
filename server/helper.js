@@ -1,6 +1,7 @@
-import fs from 'node:fs';
-import {rimraf} from 'rimraf';
 import Crypto from 'node:crypto';
+import fs from 'node:fs';
+import { mkdirp } from 'mkdirp';
+import {rimraf} from 'rimraf';
 
 const secret = process.env.SECRET;
 const sigLength = parseInt(process.env.SIG_LENGTH);
@@ -51,7 +52,7 @@ export function genKeyPair(seed = Crypto.randomUUID()){
 
 export function setupDB(){
     for (const key in dir) {
-        fs.mkdirSync(dir[key], {recursive: true});
+        mkdirp.sync(dir[key]);
     }
 }
 
@@ -60,7 +61,7 @@ export function publicProduce(publicKey, data){
     const uuid = Crypto.randomUUID();
     const tmpfile = dir.tmp + uuid;
     fs.writeFileSync(tmpfile, data, {flush: true});
-    try {fs.mkdirSync(destDir)} catch (e) {}; // Dont throw error if directory exists and mkdir fails
+    mkdirp.sync(destDir);
     fs.renameSync(tmpfile, destDir + uuid);
 }
 
@@ -90,7 +91,7 @@ export function publicConsume(publicKey){
 export function oneToOneProduce(privateKey, key, data){
     const publicKey = genPublicKey(privateKey);
     const destDir = dir.oneToOne + publicKey + '/';
-    try {fs.mkdirSync(destDir)} catch (e) {}; // Dont throw error if directory exists and mkdir fails
+    mkdirp.sync(destDir);
     const tmpfile = dir.tmp + Crypto.randomUUID();
     fs.writeFileSync(tmpfile, data, {flush: true});
     fs.renameSync(tmpfile, destDir + hash(key));    
