@@ -52,6 +52,10 @@ const callInternalServerError = function(reply, msg){
     reply.send({message: msg, error: "Internal Server Error", statusCode: reply.statusCode});
 }
 
+fastify.get('/', (request, reply) => {
+    reply.redirect('https://securelay.github.io');
+})
+
 fastify.get('/keys', (request, reply) => {
     reply.send(helper.genKeyPair());
 })
